@@ -263,7 +263,11 @@ class V1Response(BaseResponse):
             response["body"] = b64encode(self.body.getvalue()).decode("utf-8")
         else:
             response["isBase64Encoded"] = False
-            response["body"] = self.body.getvalue().decode("utf-8")
+            # if the payload is encoded, we shouldn't be trying to decods it to utf-8
+            if 'Content-Encoding' in [header[0] for header in self.headers]:
+                response["body"] = self.body.getvalue()
+            else:
+                response["body"] = self.body.getvalue().decode("utf-8")
 
         return response
 
